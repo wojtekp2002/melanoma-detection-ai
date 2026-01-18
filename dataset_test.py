@@ -53,6 +53,6 @@ if __name__ == "__main__":
     dl = DataLoader(ds, batch_size=8, shuffle=True, num_workers=0)
 
     x, y = next(iter(dl))
-    print("Batch X shape:", tuple(x.shape))   # oczekiwane: (8, 3, 224, 224)
-    print("Batch y shape:", tuple(y.shape))   # oczekiwane: (8,)
+    print("Batch X shape:", tuple(x.shape))   
+    print("Batch y shape:", tuple(y.shape))   
     print("y values:", y.tolist())
