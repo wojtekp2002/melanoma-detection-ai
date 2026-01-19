@@ -9,7 +9,7 @@ from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms as T
 import torchvision.models as models
 
-# ---------------- paths ----------------
+#paths
 DATA_DIR = "data"
 IMG_DIR_1 = os.path.join(DATA_DIR, "HAM10000_images_part_1")
 IMG_DIR_2 = os.path.join(DATA_DIR, "HAM10000_images_part_2")
@@ -21,7 +21,7 @@ OUT_DIR = "artifacts"
 os.makedirs(OUT_DIR, exist_ok=True)
 BEST_PATH = os.path.join(OUT_DIR, "efficientnet_b0_best.pt")
 
-# ---------------- dataset ----------------
+#dataset
 def find_image_path(image_id: str) -> str:
     fn = image_id + ".jpg"
     p1 = os.path.join(IMG_DIR_1, fn)
@@ -68,12 +68,11 @@ def make_loaders(batch_size=16):
     train_ds = HamDataset(TRAIN_CSV, transform=train_tf)
     val_ds   = HamDataset(VAL_CSV, transform=val_tf)
 
-    # Windows: num_workers=2 zwykle OK, jakby crashowało -> 0
     train_dl = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=2, pin_memory=True)
     val_dl   = DataLoader(val_ds, batch_size=batch_size, shuffle=False, num_workers=2, pin_memory=True)
     return train_dl, val_dl
 
-# ---------------- train utils ----------------
+#train utils 
 def run_epoch(model, dl, criterion, optimizer=None, device="cpu"):
     train = optimizer is not None
     model.train(train)
