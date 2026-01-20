@@ -163,21 +163,45 @@ Wymagane:
 
 ### 10.2 Instalacja zależności
 
-Po sklonowaniu repozytorium należy zainstalować wymagane biblioteki:
+1. Przejdź do katalogu `melanoma-detection-ai`.
+2. Upewnij się, że masz zainstalowanego **Pythona 3.11** (np. `pyenv install 3.11.9`).
+3. Utwórz i aktywuj środowisko wirtualne:
 
 ```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## 10.3 Uruchomienie serwera API
+> Jeżeli korzystasz z `pyenv`, możesz też wykonać `pyenv shell 3.11.9` przed tworzeniem `.venv`.
 
-Backend aplikacji został zaimplementowany z wykorzystaniem frameworka **FastAPI**.
-Aby uruchomić serwer API lokalnie, należy w katalogu głównym projektu wykonać polecenie:
+### 10.3 Uruchomienie serwera API
+
+Backend został zaimplementowany w **FastAPI**. Po aktywowaniu środowiska (patrz wyżej) uruchom:
 
 ```bash
-uvicorn api.main:app --host 0.0.0.0 --port 8000
+uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
+Domyślnie serwer ładuje model z `artifacts/efficientnet_b0_best.pt` i udostępnia endpointy:
+
+- `GET /health`
+- `POST /predict` (multipart/form-data, pole `file`)
+
+#### Szybki start jednym poleceniem
+
+Dodałem skrypt `scripts/dev.sh`, który automatyzuje tworzenie `.venv`, instalację zależności i start serwera:
+
+```bash
+cd melanoma-detection-ai
+./scripts/dev.sh
+```
+
+Zmienne środowiskowe:
+
+- `PYTHON_BIN=python3.12 ./scripts/dev.sh` – inny interpreter.
+- `PORT=9000 ./scripts/dev.sh` – inny port.
+- `OMP_NUM_THREADS=1 ./scripts/dev.sh` – pomocne gdy macOS zgłasza problemy z pamięcią współdzieloną.
 
 
 
