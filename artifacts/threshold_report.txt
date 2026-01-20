@@ -1,0 +1,11 @@
+VAL REPORT
+AUC: 0.9548
+{'thr': 0.5, 'TP': np.int64(100), 'FP': np.int64(88), 'TN': np.int64(802), 'FN': np.int64(11), 'precision': np.float64(0.531914893614192), 'recall': np.float64(0.9009009008927846), 'specificity': np.float64(0.9011235955046055)}
+{'thr': 0.361, 'TP': np.int64(106), 'FP': np.int64(125), 'TN': np.int64(765), 'FN': np.int64(5), 'precision': np.float64(0.4588744588724724), 'recall': np.float64(0.9549549549463517), 'specificity': np.float64(0.859550561796787)}
+{'thr': 0.5593939393939393, 'TP': np.int64(100), 'FP': np.int64(80), 'TN': np.int64(810), 'FN': np.int64(11), 'precision': np.float64(0.5555555555524692), 'recall': np.float64(0.9009009008927846), 'specificity': np.float64(0.9101123595495392)}
+
+TEST REPORT
+AUC: 0.9440
+{'thr': 0.5, 'TP': np.int64(96), 'FP': np.int64(97), 'TN': np.int64(793), 'FN': np.int64(16), 'precision': np.float64(0.49740932642229324), 'recall': np.float64(0.8571428571352041), 'specificity': np.float64(0.8910112359540551)}
+{'thr': 0.361, 'TP': np.int64(99), 'FP': np.int64(123), 'TN': np.int64(767), 'FN': np.int64(13), 'precision': np.float64(0.4459459459439372), 'recall': np.float64(0.8839285714206792), 'specificity': np.float64(0.8617977528080205)}
+{'thr': 0.5593939393939393, 'TP': np.int64(93), 'FP': np.int64(87), 'TN': np.int64(803), 'FN': np.int64(19), 'precision': np.float64(0.5166666666637963), 'recall': np.float64(0.830357142849729), 'specificity': np.float64(0.9022471910102222)}

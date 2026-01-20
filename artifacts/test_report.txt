@@ -1,0 +1,7 @@
+TEST REPORT
+AUC: 0.9254
+Threshold: 0.361
+TP=100 FP=180 TN=710 FN=12
+Precision: 0.3571
+Recall/Sensitivity: 0.8929
+Specificity: 0.7978

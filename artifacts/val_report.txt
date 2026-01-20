@@ -1,0 +1,6 @@
+AUC: 0.9331
+Threshold: 0.50
+TP=97 FP=149 TN=741 FN=14
+Precision: 0.3943
+Recall/Sensitivity: 0.8739
+Specificity: 0.8326

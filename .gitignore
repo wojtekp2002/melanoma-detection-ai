@@ -12,9 +12,7 @@ venv/
 data/
 ml_data/
 
-# Model artifacts
-artifacts/
-*.pt
+
 
 # OS / IDE
 .DS_Store
