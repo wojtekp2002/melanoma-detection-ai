@@ -19,7 +19,7 @@ VAL_CSV   = os.path.join("ml_data", "val.csv")
 
 OUT_DIR = "artifacts"
 os.makedirs(OUT_DIR, exist_ok=True)
-BEST_PATH = os.path.join(OUT_DIR, "efficientnet_b0_best.pt")
+BEST_PATH = os.path.join(OUT_DIR, "efficientnet_b0_phoneaug_best.pt")
 
 #dataset
 def find_image_path(image_id: str) -> str:
@@ -52,10 +52,23 @@ class HamDataset(Dataset):
 
 def make_loaders(batch_size=16):
     train_tf = T.Compose([
-        T.Resize((224, 224)),
+        #zoom i różne kadry jak w telefonie
+        T.RandomResizedCrop(224, scale=(0.6, 1.0), ratio=(0.9, 1.1)),
         T.RandomHorizontalFlip(p=0.5),
-        T.RandomRotation(degrees=10),
-        T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1),
+
+        #lekka geometria (telefon krzywo)
+        T.RandomRotation(degrees=15),
+
+        #światło / balans bieli / kontrast (telefon)
+        T.ColorJitter(brightness=0.25, contrast=0.25, saturation=0.25, hue=0.05),
+
+        #ostrość i kontrast jak w mobilnych zdjęciach
+        T.RandomAutocontrast(p=0.3),
+        T.RandomAdjustSharpness(sharpness_factor=2.0, p=0.2),
+
+        #lekki blur
+        T.GaussianBlur(kernel_size=3, sigma=(0.1, 1.0)),
+
         T.ToTensor(),
         T.Normalize([0.485,0.456,0.406],[0.229,0.224,0.225]),
     ])

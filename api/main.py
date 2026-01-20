@@ -47,7 +47,7 @@ model.eval()
 if not os.path.exists(MODEL_PATH):
     raise RuntimeError(f"Nie znaleziono pliku modelu: {MODEL_PATH}")
 
-state = torch.load(MODEL_PATH, map_location="cpu")["model_state"]
+state = torch.load(MODEL_PATH, map_location="cpu", weights_only=True)["model_state"]
 model.load_state_dict(state)
 
 @app.get("/health")
