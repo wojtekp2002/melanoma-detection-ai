@@ -40,7 +40,7 @@ def build_model() -> torch.nn.Module:
     m.classifier[1] = nn.Linear(in_features, 1)
     return m
 
-#ładujemy model raz przy starcie
+#ładowanie modelu
 model = build_model().to(device)
 model.eval()
 
