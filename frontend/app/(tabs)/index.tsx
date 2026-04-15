@@ -28,8 +28,8 @@ export default function HomeTab() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 0.9,
-      allowsEditing: true, 
-      aspect: [1, 1], 
+      allowsEditing: true,
+      aspect: [1, 1],
     });
 
     if (result.canceled) return;
@@ -56,73 +56,142 @@ export default function HomeTab() {
 
     const uri = result.assets[0].uri;
     setLastUri(uri);
-    router.push({ pathname: "/preview", params: { uri } } as any );
+    router.push({ pathname: "/preview", params: { uri } } as any);
   }
 
   return (
-    <LinearGradient colors={[Colors.bg, "#141C33"]} style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Analiza zdjęcia</Text>
+    <LinearGradient colors={[Colors.bg, "#141C33", "#1A2240"]} style={styles.container}>
+      <View style={styles.hero}>
+        <Text style={styles.kicker}>Melanoma AI</Text>
+        <Text style={styles.title}>Nowa analiza</Text>
         <Text style={styles.subtitle}>
-          Wybierz zdjęcie zmiany skórnej. Najlepiej w dobrym świetle, ostro, bez
-          mocnych cieni.
+          Zrób ostre zdjęcie zmiany skórnej lub wybierz je z galerii. Najlepsze
+          wyniki uzyskasz przy dobrym świetle i bliskim kadrze.
         </Text>
       </View>
 
       {lastUri && (
-        <View style={styles.previewBox}>
-          <Image source={{ uri: lastUri }} style={styles.previewImg} />
-          <Text style={styles.previewText}>Ostatnio wybrane</Text>
+        <View style={styles.lastCard}>
+          <Image source={{ uri: lastUri }} style={styles.lastImage} />
+          <View style={styles.lastContent}>
+            <Text style={styles.lastTitle}>Ostatnio wybrane zdjęcie</Text>
+            <Text style={styles.lastDesc}>
+              Możesz od razu wrócić do analizy albo wybrać nowe zdjęcie.
+            </Text>
+          </View>
         </View>
       )}
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Wybierz źródło</Text>
+      <View style={styles.actionCard}>
+        <Text style={styles.sectionTitle}>Wybierz źródło zdjęcia</Text>
 
         <PrimaryButton
           title="📷 Zrób zdjęcie"
           onPress={takePhoto}
-          style={{ marginTop: 12 }}
+          style={{ marginTop: 14 }}
         />
+
         <PrimaryButton
           title="🖼️ Wybierz z galerii"
           onPress={pickFromGallery}
           style={{ marginTop: 12 }}
         />
 
-        <Text style={styles.note}>
-          To narzędzie nie jest diagnozą. Jeśli zmiana budzi niepokój — dermatolog.
-        </Text>
+        <View style={styles.tipBox}>
+          <Text style={styles.tipTitle}>Wskazówki</Text>
+          <Text style={styles.tipText}>• Zadbaj o dobre, równe światło</Text>
+          <Text style={styles.tipText}>• Zmiana powinna być blisko i wyraźna</Text>
+          <Text style={styles.tipText}>• Unikaj rozmazania i mocnych cieni</Text>
+        </View>
       </View>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  header: { marginTop: 12, marginBottom: 14 },
-  title: { color: Colors.text, fontSize: 26, fontWeight: "900" },
-  subtitle: { color: Colors.muted, marginTop: 6, lineHeight: 20 },
-
-  previewBox: {
-    alignSelf: "flex-start",
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: 18,
-    overflow: "hidden",
-    backgroundColor: Colors.card,
+  container: {
+    flex: 1,
+    padding: 20,
   },
-  previewImg: { width: 120, height: 120 },
-  previewText: { color: Colors.muted, padding: 8, fontSize: 12 },
-
-  card: {
+  hero: {
+    marginTop: 14,
+    marginBottom: 18,
+  },
+  kicker: {
+    color: Colors.primary2,
+    fontSize: 13,
+    fontWeight: "800",
+    letterSpacing: 0.8,
+    marginBottom: 6,
+  },
+  title: {
+    color: Colors.text,
+    fontSize: 30,
+    fontWeight: "900",
+  },
+  subtitle: {
+    color: Colors.muted,
+    marginTop: 10,
+    lineHeight: 22,
+    fontSize: 15,
+  },
+  lastCard: {
+    flexDirection: "row",
     backgroundColor: Colors.card,
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: Colors.border,
+    overflow: "hidden",
+    marginBottom: 16,
+  },
+  lastImage: {
+    width: 96,
+    height: 96,
+  },
+  lastContent: {
+    flex: 1,
+    padding: 14,
+    justifyContent: "center",
+  },
+  lastTitle: {
+    color: Colors.text,
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  lastDesc: {
+    color: Colors.muted,
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: 6,
+  },
+  actionCard: {
+    backgroundColor: Colors.card,
     borderRadius: 24,
+    borderWidth: 1,
+    borderColor: Colors.border,
     padding: 18,
   },
-  cardTitle: { color: Colors.text, fontSize: 16, fontWeight: "900" },
-  note: { color: Colors.muted, marginTop: 14, fontSize: 12, lineHeight: 18 },
+  sectionTitle: {
+    color: Colors.text,
+    fontSize: 17,
+    fontWeight: "900",
+  },
+  tipBox: {
+    marginTop: 18,
+    padding: 14,
+    borderRadius: 18,
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  tipTitle: {
+    color: Colors.text,
+    fontWeight: "800",
+    marginBottom: 8,
+  },
+  tipText: {
+    color: Colors.muted,
+    lineHeight: 20,
+    fontSize: 13,
+  },
 });
