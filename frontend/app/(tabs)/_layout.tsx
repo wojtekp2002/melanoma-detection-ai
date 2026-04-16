@@ -52,6 +52,16 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
+        name="lesions"
+        options={{
+          title: "Zmiany",
+          tabBarIcon: ({ color }) => (
+            <FontAwesome name="map-marker" size={18} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="profile"
         options={{
           title: "Profil",

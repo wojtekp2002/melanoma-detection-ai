@@ -15,27 +15,31 @@ import { Colors } from "@/constants/Colors";
 const menuItems = [
   {
     id: "1",
-    icon: "user-o",
-    title: "Dane użytkownika",
-    subtitle: "Imię, adres e-mail i ustawienia konta",
+    icon: "heartbeat",
+    title: "Profil zdrowotny",
+    subtitle: "Wiek, fototyp skóry i dodatkowe czynniki ryzyka",
+    route: "/risk-profile",
   },
   {
     id: "2",
-    icon: "shield",
-    title: "Prywatność i bezpieczeństwo",
-    subtitle: "Informacje o przechowywaniu danych i zdjęć",
+    icon: "map-marker",
+    title: "Moje zmiany",
+    subtitle: "Lista obserwowanych zmian skórnych i ich lokalizacja",
+    route: "/(tabs)/lesions",
   },
   {
     id: "3",
-    icon: "info-circle",
-    title: "O aplikacji",
-    subtitle: "Wersja projektu, cel i ograniczenia modelu",
+    icon: "shield",
+    title: "Prywatność i bezpieczeństwo",
+    subtitle: "Informacje o przechowywaniu danych i zdjęć",
+    route: null,
   },
   {
     id: "4",
-    icon: "stethoscope",
-    title: "Disclaimer medyczny",
-    subtitle: "Przypomnienie o ograniczeniach i odpowiedzialnym użyciu",
+    icon: "info-circle",
+    title: "O aplikacji",
+    subtitle: "Wersja projektu, cel i ograniczenia modelu",
+    route: null,
   },
 ];
 
@@ -74,13 +78,18 @@ export default function ProfileScreen() {
 
           <View style={styles.menuCard}>
             {menuItems.map((item, index) => (
-              <Pressable
+                <Pressable
                 key={item.id}
+                onPress={() => {
+                    if (item.route) {
+                    router.push({ pathname: item.route } as any);
+                    }
+                }}
                 style={[
-                  styles.menuItem,
-                  index !== menuItems.length - 1 && styles.menuItemBorder,
+                    styles.menuItem,
+                    index !== menuItems.length - 1 && styles.menuItemBorder,
                 ]}
-              >
+                >
                 <View style={styles.menuLeft}>
                   <View style={styles.menuIcon}>
                     <FontAwesome
