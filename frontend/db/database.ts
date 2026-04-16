@@ -28,7 +28,7 @@ export async function initDatabase() {
 
     CREATE TABLE IF NOT EXISTS observations (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      lesion_id INTEGER NOT NULL,
+      lesion_id INTEGER,
       image_uri TEXT NOT NULL,
       probability REAL NOT NULL,
       label TEXT NOT NULL,

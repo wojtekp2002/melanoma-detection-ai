@@ -12,6 +12,7 @@ import { useLocalSearchParams, router } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import PrimaryButton from "@/components/PrimaryButton";
 import { predictImage } from "@/services/api";
+import { createObservation } from "@/db/observations.repository";
 
 export default function Preview() {
   const params = useLocalSearchParams();
@@ -27,7 +28,17 @@ export default function Preview() {
 
     try {
       setLoading(true);
+
       const res = await predictImage(uri);
+
+      await createObservation({
+        lesionId: null,
+        imageUri: uri,
+        probability: res.probability,
+        label: res.label,
+        createdAt: new Date().toISOString(),
+        note: null,
+      });
 
       router.push({
         pathname: "/modal",
@@ -37,10 +48,12 @@ export default function Preview() {
         },
       } as any);
     } catch (e: any) {
+      console.error("Błąd analizy lub zapisu obserwacji:", e);
+
       Alert.alert(
         "Błąd analizy",
         e?.message ??
-          "Nie udało się połączyć z API. Sprawdź czy serwer działa i czy IP jest poprawne."
+          "Nie udało się połączyć z API albo zapisać wyniku. Sprawdź czy serwer działa i czy IP jest poprawne."
       );
     } finally {
       setLoading(false);
@@ -48,7 +61,10 @@ export default function Preview() {
   }
 
   return (
-    <LinearGradient colors={[Colors.bg, "#141C33", "#1A2240"]} style={styles.container}>
+    <LinearGradient
+      colors={[Colors.bg, "#141C33", "#1A2240"]}
+      style={styles.container}
+    >
       <View style={styles.header}>
         <Text style={styles.title}>Podgląd zdjęcia</Text>
         <Text style={styles.subtitle}>
@@ -76,7 +92,11 @@ export default function Preview() {
       ) : (
         <View style={styles.actions}>
           <PrimaryButton title="🔎 Analizuj" onPress={onAnalyze} />
-          <PrimaryButton title="↩️ Wróć" onPress={() => router.back()} style={{ marginTop: 12 }} />
+          <PrimaryButton
+            title="↩️ Wróć"
+            onPress={() => router.back()}
+            style={{ marginTop: 12 }}
+          />
         </View>
       )}
 

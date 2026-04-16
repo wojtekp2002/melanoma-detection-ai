@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -6,40 +6,45 @@ import {
   ScrollView,
   Image,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome } from "@expo/vector-icons";
+import { useFocusEffect } from "expo-router";
 import { Colors } from "@/constants/Colors";
-
-const mockHistory = [
-  {
-    id: "1",
-    date: "12 kwietnia 2026",
-    risk: "Podwyższone ryzyko",
-    probability: "72%",
-    image:
-      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: "2",
-    date: "6 kwietnia 2026",
-    risk: "Niskie ryzyko",
-    probability: "18%",
-    image:
-      "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: "3",
-    date: "28 marca 2026",
-    risk: "Umiarkowane ryzyko",
-    probability: "43%",
-    image:
-      "https://images.unsplash.com/photo-1584515933487-779824d29309?q=80&w=600&auto=format&fit=crop",
-  },
-];
+import { getAllObservations } from "@/db/observations.repository";
+import { Observation } from "@/types/observation";
 
 export default function HistoryScreen() {
+  const [observations, setObservations] = useState<Observation[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadObservations();
+    }, [])
+  );
+
+  async function loadObservations() {
+    try {
+      setLoading(true);
+      const data = await getAllObservations();
+      setObservations(data);
+    } catch (error) {
+      console.error("Błąd ładowania obserwacji:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function getRiskText(label: Observation["label"], probability: number) {
+    if (label === "high_risk") {
+      return probability >= 0.7 ? "Podwyższone ryzyko" : "Umiarkowane ryzyko";
+    }
+    return "Niskie ryzyko";
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <LinearGradient
@@ -65,62 +70,92 @@ export default function HistoryScreen() {
 
           <View style={styles.summaryCard}>
             <View style={styles.summaryItem}>
-              <Text style={styles.summaryValue}>12</Text>
+              <Text style={styles.summaryValue}>{observations.length}</Text>
               <Text style={styles.summaryLabel}>Wszystkich analiz</Text>
             </View>
             <View style={styles.summaryItem}>
-              <Text style={styles.summaryValue}>4</Text>
+              <Text style={styles.summaryValue}>
+                {
+                  observations.filter((item) => {
+                    const d = new Date(item.createdAt);
+                    const now = new Date();
+                    return (
+                      d.getMonth() === now.getMonth() &&
+                      d.getFullYear() === now.getFullYear()
+                    );
+                  }).length
+                }
+              </Text>
               <Text style={styles.summaryLabel}>W tym miesiącu</Text>
             </View>
             <View style={styles.summaryItem}>
-              <Text style={styles.summaryValue}>3</Text>
-              <Text style={styles.summaryLabel}>Obserwowane zmiany</Text>
+              <Text style={styles.summaryValue}>
+                {observations.filter((item) => item.label === "high_risk").length}
+              </Text>
+              <Text style={styles.summaryLabel}>High risk</Text>
             </View>
           </View>
 
           <View style={styles.listHeader}>
             <Text style={styles.listTitle}>Ostatnie obserwacje</Text>
-            <Pressable>
-              <Text style={styles.listAction}>Zobacz wszystkie</Text>
-            </Pressable>
           </View>
 
-          {mockHistory.map((item) => (
-            <Pressable key={item.id} style={styles.card}>
-              <Image source={{ uri: item.image }} style={styles.image} />
+          {loading ? (
+            <View style={styles.centerBox}>
+              <ActivityIndicator size="large" color={Colors.primary2} />
+              <Text style={styles.centerText}>Wczytywanie historii...</Text>
+            </View>
+          ) : observations.length === 0 ? (
+            <View style={styles.emptyCard}>
+              <FontAwesome name="history" size={28} color={Colors.textMuted} />
+              <Text style={styles.emptyTitle}>Brak zapisanych analiz</Text>
+              <Text style={styles.emptyText}>
+                Gdy wykonasz analizę zdjęcia, wynik pojawi się tutaj automatycznie.
+              </Text>
+            </View>
+          ) : (
+            observations.map((item) => (
+              <Pressable key={item.id} style={styles.card}>
+                <Image source={{ uri: item.imageUri }} style={styles.image} />
 
-              <View style={styles.cardContent}>
-                <Text style={styles.cardDate}>{item.date}</Text>
-                <Text style={styles.cardTitle}>{item.risk}</Text>
-                <Text style={styles.cardSubtitle}>
-                  Szacowane prawdopodobieństwo: {item.probability}
-                </Text>
+                <View style={styles.cardContent}>
+                  <Text style={styles.cardDate}>
+                    {new Date(item.createdAt).toLocaleDateString("pl-PL")}
+                  </Text>
+                  <Text style={styles.cardTitle}>
+                    {getRiskText(item.label, item.probability)}
+                  </Text>
+                  <Text style={styles.cardSubtitle}>
+                    Szacowane prawdopodobieństwo: {(item.probability * 100).toFixed(1)}%
+                  </Text>
 
-                <View style={styles.cardFooter}>
-                  <View style={styles.badgeSmall}>
-                    <Text style={styles.badgeSmallText}>Analiza zdjęcia</Text>
+                  <View style={styles.cardFooter}>
+                    <View style={styles.badgeSmall}>
+                      <Text style={styles.badgeSmallText}>
+                        {item.label === "high_risk" ? "high_risk" : "low_risk"}
+                      </Text>
+                    </View>
+
+                    <FontAwesome
+                      name="angle-right"
+                      size={18}
+                      color={Colors.textSecondary}
+                    />
                   </View>
-
-                  <FontAwesome
-                    name="angle-right"
-                    size={18}
-                    color={Colors.textSecondary}
-                  />
                 </View>
-              </View>
-            </Pressable>
-          ))}
+              </Pressable>
+            ))
+          )}
 
           <View style={styles.infoCard}>
             <View style={styles.infoHeader}>
               <FontAwesome name="info-circle" size={16} color={Colors.primary2} />
-              <Text style={styles.infoTitle}>Co później tu dodamy</Text>
+              <Text style={styles.infoTitle}>Co dalej</Text>
             </View>
 
             <Text style={styles.infoText}>
-              W następnym kroku podepniemy prawdziwy zapis historii lokalnie,
-              a potem porównywanie zmian w czasie i grupowanie obserwacji według
-              konkretnej zmiany skórnej.
+              W kolejnym kroku podepniemy przypisywanie analizy do konkretnej zmiany
+              skórnej, żeby historia była jeszcze bardziej użyteczna.
             </Text>
           </View>
         </ScrollView>
@@ -214,10 +249,39 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "800",
   },
-  listAction: {
-    color: Colors.primary2,
+
+  centerBox: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 40,
+  },
+  centerText: {
+    marginTop: 12,
+    color: Colors.textSecondary,
+    fontSize: 14,
+  },
+
+  emptyCard: {
+    alignItems: "center",
+    borderRadius: 24,
+    padding: 24,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginBottom: 14,
+  },
+  emptyTitle: {
+    color: Colors.text,
+    fontSize: 17,
+    fontWeight: "800",
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  emptyText: {
+    color: Colors.textSecondary,
     fontSize: 13,
-    fontWeight: "700",
+    lineHeight: 20,
+    textAlign: "center",
   },
 
   card: {
