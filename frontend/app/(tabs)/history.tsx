@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome } from "@expo/vector-icons";
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { getAllObservations } from "@/db/observations.repository";
 import { Observation } from "@/types/observation";
@@ -115,7 +115,16 @@ export default function HistoryScreen() {
             </View>
           ) : (
             observations.map((item) => (
-              <Pressable key={item.id} style={styles.card}>
+              <Pressable 
+              key={item.id} 
+              style={styles.card}
+                onPress={() =>
+                router.push({
+                  pathname: "/observation-details",
+                  params: { id: String(item.id) },
+                } as any)
+              }
+              >
                 <Image source={{ uri: item.imageUri }} style={styles.image} />
 
                 <View style={styles.cardContent}>
