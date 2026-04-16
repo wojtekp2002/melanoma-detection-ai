@@ -47,11 +47,21 @@ export default function RiskProfileScreen() {
   const [saving, setSaving] = useState(false);
 
   const [age, setAge] = useState("");
-  const [familyHistorySkinCancer, setFamilyHistorySkinCancer] = useState(false);
-  const [hadSevereSunburns, setHadSevereSunburns] = useState(false);
-  const [manyMoles, setManyMoles] = useState(false);
-  const [familyRelation, setFamilyRelation] = useState("");
   const [selectedPhototype, setSelectedPhototype] = useState<SkinPhototype | null>(null);
+
+  const [familyHistorySkinCancer, setFamilyHistorySkinCancer] = useState(false);
+  const [familyHistoryRelation, setFamilyHistoryRelation] = useState("");
+
+  const [familyHistoryOtherCancer, setFamilyHistoryOtherCancer] = useState(false);
+  const [familyHistoryOtherCancerRelation, setFamilyHistoryOtherCancerRelation] = useState("");
+
+  const [hadSevereSunburns, setHadSevereSunburns] = useState(false);
+  const [frequentSunExposure, setFrequentSunExposure] = useState(false);
+  const [usesTanningBeds, setUsesTanningBeds] = useState(false);
+
+  const [manyMoles, setManyMoles] = useState(false);
+  const [atypicalMoles, setAtypicalMoles] = useState(false);
+  const [veryFairSkin, setVeryFairSkin] = useState(false);
 
   useEffect(() => {
     loadProfile();
@@ -66,10 +76,20 @@ export default function RiskProfileScreen() {
       if (profile) {
         setAge(profile.age ? String(profile.age) : "");
         setSelectedPhototype(profile.skinPhototype ?? null);
+
         setFamilyHistorySkinCancer(profile.familyHistorySkinCancer);
-        setFamilyRelation(profile.familyHistoryRelation ?? "");
+        setFamilyHistoryRelation(profile.familyHistoryRelation ?? "");
+
+        setFamilyHistoryOtherCancer(profile.familyHistoryOtherCancer);
+        setFamilyHistoryOtherCancerRelation(profile.familyHistoryOtherCancerRelation ?? "");
+
         setHadSevereSunburns(profile.hadSevereSunburns);
+        setFrequentSunExposure(profile.frequentSunExposure);
+        setUsesTanningBeds(profile.usesTanningBeds);
+
         setManyMoles(profile.manyMoles);
+        setAtypicalMoles(profile.atypicalMoles);
+        setVeryFairSkin(profile.veryFairSkin);
       }
     } catch (error) {
       console.error("Błąd ładowania profilu:", error);
@@ -93,10 +113,24 @@ export default function RiskProfileScreen() {
       await saveUserRiskProfile({
         age: parsedAge,
         skinPhototype: selectedPhototype,
+
         familyHistorySkinCancer,
-        familyHistoryRelation: familyHistorySkinCancer ? familyRelation.trim() || null : null,
+        familyHistoryRelation: familyHistorySkinCancer
+          ? familyHistoryRelation.trim() || null
+          : null,
+
+        familyHistoryOtherCancer,
+        familyHistoryOtherCancerRelation: familyHistoryOtherCancer
+          ? familyHistoryOtherCancerRelation.trim() || null
+          : null,
+
         hadSevereSunburns,
+        frequentSunExposure,
+        usesTanningBeds,
+
         manyMoles,
+        atypicalMoles,
+        veryFairSkin,
       });
 
       Alert.alert("Gotowe", "Profil zdrowotny został zapisany.");
@@ -145,9 +179,9 @@ export default function RiskProfileScreen() {
           </View>
 
           <Text style={styles.description}>
-            Te informacje pomagają budować pełniejszy profil użytkownika i mogą
-            wspierać przyszłe rekomendacje w aplikacji. Na ten moment nie są bezpośrednio
-            używane przez model obrazu.
+            Te informacje budują szerszy kontekst zdrowotny użytkownika. Na ten moment
+            nie są bezpośrednio używane przez model obrazu, ale pomagają tworzyć
+            bardziej sensowny profil ryzyka w aplikacji.
           </Text>
 
           <View style={styles.card}>
@@ -183,7 +217,7 @@ export default function RiskProfileScreen() {
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Historia i ekspozycja</Text>
+            <Text style={styles.sectionTitle}>Historia rodzinna</Text>
 
             <ToggleRow
               label="W rodzinie występował rak skóry"
@@ -193,10 +227,10 @@ export default function RiskProfileScreen() {
 
             {familyHistorySkinCancer && (
               <>
-                <Text style={styles.label}>Kto chorował?</Text>
+                <Text style={styles.label}>Kto chorował na raka skóry?</Text>
                 <TextInput
-                  value={familyRelation}
-                  onChangeText={setFamilyRelation}
+                  value={familyHistoryRelation}
+                  onChangeText={setFamilyHistoryRelation}
                   placeholder="Np. mama, dziadek od strony mamy"
                   placeholderTextColor={Colors.textMuted}
                   style={styles.input}
@@ -205,15 +239,66 @@ export default function RiskProfileScreen() {
             )}
 
             <ToggleRow
+              label="W rodzinie występowały inne nowotwory"
+              value={familyHistoryOtherCancer}
+              onChange={setFamilyHistoryOtherCancer}
+            />
+
+            {familyHistoryOtherCancer && (
+              <>
+                <Text style={styles.label}>Kto chorował i na jaki nowotwór?</Text>
+                <TextInput
+                  value={familyHistoryOtherCancerRelation}
+                  onChangeText={setFamilyHistoryOtherCancerRelation}
+                  placeholder="Np. tata – rak płuca, babcia – rak piersi"
+                  placeholderTextColor={Colors.textMuted}
+                  style={styles.input}
+                />
+              </>
+            )}
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Ekspozycja UV</Text>
+
+            <ToggleRow
               label="Miałem/miałam w przeszłości ciężkie oparzenia słoneczne"
               value={hadSevereSunburns}
               onChange={setHadSevereSunburns}
             />
 
             <ToggleRow
+              label="Mam częstą ekspozycję na słońce"
+              value={frequentSunExposure}
+              onChange={setFrequentSunExposure}
+            />
+
+            <ToggleRow
+              label="Korzystałem/korzystałam z solarium"
+              value={usesTanningBeds}
+              onChange={setUsesTanningBeds}
+            />
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Skóra i znamiona</Text>
+
+            <ToggleRow
               label="Mam dużo znamion / pieprzyków"
               value={manyMoles}
               onChange={setManyMoles}
+            />
+
+            <ToggleRow
+              label="Mam atypowe / nieregularne znamiona"
+              value={atypicalMoles}
+              onChange={setAtypicalMoles}
+            />
+
+            <ToggleRow
+              label="Mam bardzo jasną skórę / łatwo ulegam oparzeniom"
+              value={veryFairSkin}
+              onChange={setVeryFairSkin}
             />
           </View>
 
@@ -224,9 +309,9 @@ export default function RiskProfileScreen() {
             </View>
 
             <Text style={styles.infoText}>
-              Ten moduł jest dodatkiem produktowym. Uczciwie oddzielamy ocenę obrazu
-              od dodatkowych czynników ryzyka, żeby nie sugerować użytkownikowi,
-              że obecny model już wykorzystuje wszystkie te dane.
+              Obecna analiza AI nadal opiera się głównie na obrazie. Ten profil
+              ma pomóc rozbudować aplikację produktowo i przygotować bazę pod
+              przyszłe, bardziej kontekstowe rekomendacje.
             </Text>
           </View>
 

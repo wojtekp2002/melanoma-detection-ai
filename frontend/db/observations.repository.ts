@@ -57,6 +57,40 @@ export async function getAllObservations(): Promise<Observation[]> {
   }));
 }
 
+export async function getObservationsByLesionId(
+  lesionId: number
+): Promise<Observation[]> {
+  const db = getDb();
+
+  const rows = await db.getAllAsync<{
+    id: number;
+    lesion_id: number | null;
+    image_uri: string;
+    probability: number;
+    label: "low_risk" | "high_risk";
+    created_at: string;
+    note: string | null;
+  }>(
+    `
+      SELECT *
+      FROM observations
+      WHERE lesion_id = ?
+      ORDER BY datetime(created_at) DESC
+    `,
+    [lesionId]
+  );
+
+  return rows.map((row) => ({
+    id: row.id,
+    lesionId: row.lesion_id,
+    imageUri: row.image_uri,
+    probability: row.probability,
+    label: row.label,
+    createdAt: row.created_at,
+    note: row.note,
+  }));
+}
+
 export async function getObservationsCount(): Promise<number> {
   const db = getDb();
 

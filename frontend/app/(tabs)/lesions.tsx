@@ -101,7 +101,16 @@ export default function LesionsScreen() {
             </View>
           ) : (
             lesions.map((item) => (
-              <Pressable key={item.id} style={styles.card}>
+              <Pressable 
+                key={item.id}
+                style={styles.card}
+                onPress={() =>
+                  router.push({
+                    pathname: "/lesion-details",
+                    params: { id: String(item.id) },
+                  } as any)
+                }
+              >
                 <View style={styles.cardIcon}>
                   <FontAwesome name="circle" size={14} color={Colors.warning} />
                 </View>

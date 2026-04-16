@@ -57,6 +57,41 @@ export async function getAllLesions(): Promise<Lesion[]> {
   }));
 }
 
+export async function getLesionById(id: number): Promise<Lesion | null> {
+  const db = getDb();
+
+  const row = await db.getFirstAsync<{
+    id: number;
+    name: string;
+    body_side: "front" | "back";
+    body_label: string | null;
+    x: number | null;
+    y: number | null;
+    created_at: string;
+  }>(
+    `
+      SELECT *
+      FROM lesions
+      WHERE id = ?
+    `,
+    [id]
+  );
+
+  if (!row) {
+    return null;
+  }
+
+  return {
+    id: row.id,
+    name: row.name,
+    bodySide: row.body_side,
+    bodyLabel: row.body_label,
+    x: row.x,
+    y: row.y,
+    createdAt: row.created_at,
+  };
+}
+
 export async function getLesionsCount(): Promise<number> {
   const db = getDb();
 
