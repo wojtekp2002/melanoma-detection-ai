@@ -151,6 +151,14 @@ export default function ObservationDetailsScreen() {
             <Text style={styles.summaryDescription}>
               {getRiskDescription(observation.label)}
             </Text>
+
+            {!!observation.note && (
+              <View style={styles.noteBox}>
+                <Text style={styles.noteBoxTitle}>Notatka użytkownika</Text>
+                <Text style={styles.noteBoxText}>{observation.note}</Text>
+              </View>
+            )}
+
           </View>
 
           <View style={styles.infoBlock}>
@@ -412,5 +420,24 @@ const styles = StyleSheet.create({
   backSimpleButtonText: {
     color: Colors.text,
     fontWeight: "800",
+  },
+  noteBox: {
+    marginTop: 14,
+    borderRadius: 16,
+    padding: 14,
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  noteBoxTitle: {
+    color: Colors.text,
+    fontSize: 13,
+    fontWeight: "800",
+    marginBottom: 6,
+  },
+  noteBoxText: {
+    color: Colors.textSecondary,
+    fontSize: 13,
+    lineHeight: 20,
   },
 });

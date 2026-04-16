@@ -138,6 +138,12 @@ export default function HistoryScreen() {
                     Szacowane prawdopodobieństwo: {(item.probability * 100).toFixed(1)}%
                   </Text>
 
+                  {!!item.note && (
+                    <Text style={styles.cardNote} numberOfLines={2}>
+                      {item.note}
+                    </Text>
+                  )}
+
                   <View style={styles.cardFooter}>
                     <View style={styles.badgeSmall}>
                       <Text style={styles.badgeSmallText}>
@@ -372,5 +378,11 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     fontSize: 13,
     lineHeight: 20,
+  },
+  cardNote: {
+    color: Colors.textMuted,
+    fontSize: 12,
+    lineHeight: 18,
+    marginBottom: 10,
   },
 });

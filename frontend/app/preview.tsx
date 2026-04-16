@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   ScrollView,
   Pressable,
+  TextInput,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, router } from "expo-router";
@@ -27,6 +28,7 @@ export default function Preview() {
   const [lesionsLoading, setLesionsLoading] = useState(true);
   const [lesions, setLesions] = useState<Lesion[]>([]);
   const [selectedLesionId, setSelectedLesionId] = useState<number | null>(null);
+  const [note, setNote] = useState("");
 
   useEffect(() => {
     loadLesions();
@@ -61,7 +63,7 @@ export default function Preview() {
         probability: res.probability,
         label: res.label,
         createdAt: new Date().toISOString(),
-        note: null,
+        note: note.trim() || null,
       });
 
       router.push({
@@ -185,6 +187,27 @@ export default function Preview() {
               );
             })
           )}
+        </View>
+
+        <View style={styles.noteCard}>
+          <View style={styles.noteHeader}>
+            <FontAwesome name="sticky-note-o" size={16} color={Colors.primary2} />
+            <Text style={styles.noteTitle}>Notatka do obserwacji</Text>
+          </View>
+
+          <Text style={styles.noteSubtitle}>
+            Opcjonalnie dodaj krótki opis, np. co Cię niepokoi albo co zauważyłeś.
+          </Text>
+
+          <TextInput
+            value={note}
+            onChangeText={setNote}
+            placeholder="Np. zmiana wydaje się ciemniejsza niż wcześniej, lekko swędzi..."
+            placeholderTextColor={Colors.textMuted}
+            multiline
+            textAlignVertical="top"
+            style={styles.noteInput}
+          />
         </View>
 
         <View style={styles.checklistCard}>
@@ -349,6 +372,43 @@ const styles = StyleSheet.create({
     color: Colors.muted,
     fontSize: 12,
     lineHeight: 18,
+  },
+
+  noteCard: {
+    marginTop: 16,
+    borderRadius: 20,
+    backgroundColor: Colors.card,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    padding: 16,
+  },
+  noteHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 8,
+  },
+  noteTitle: {
+    color: Colors.text,
+    fontWeight: "900",
+    fontSize: 15,
+  },
+  noteSubtitle: {
+    color: Colors.muted,
+    fontSize: 13,
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  noteInput: {
+    minHeight: 110,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: "rgba(255,255,255,0.03)",
+    padding: 14,
+    color: Colors.text,
+    fontSize: 14,
+    lineHeight: 20,
   },
 
   checklistCard: {
