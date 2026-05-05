@@ -1,4 +1,5 @@
 import io
+import json
 import os
 from typing import Literal
 
@@ -8,8 +9,58 @@ import torchvision.transforms as T
 import torchvision.models as models
 from PIL import Image
 
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+
+class RiskProfile(BaseModel):
+    age: int | None = None
+    skin_phototype: str | None = None
+    family_history_skin_cancer: bool = False
+    family_history_other_cancer: bool = False
+    had_severe_sunburns: bool = False
+    frequent_sun_exposure: bool = False
+    uses_tanning_beds: bool = False
+    many_moles: bool = False
+    atypical_moles: bool = False
+    very_fair_skin: bool = False
+
+
+RISK_WEIGHTS = {
+    "family_history_skin_cancer": 3,
+    "atypical_moles": 3,
+    "family_history_other_cancer": 2,
+    "many_moles": 2,
+    "had_severe_sunburns": 1,
+    "uses_tanning_beds": 1,
+    "frequent_sun_exposure": 1,
+    "very_fair_skin": 1,
+}
+
+PHOTOTYPE_LOW_RISK = {"I", "II"}
+
+
+def compute_clinical_risk(profile: RiskProfile) -> tuple[str, float]:
+    """Returns (clinical_risk_level, threshold)."""
+    score = 0
+
+    for field, weight in RISK_WEIGHTS.items():
+        if getattr(profile, field, False):
+            score += weight
+
+    if profile.skin_phototype in PHOTOTYPE_LOW_RISK:
+        score += 2
+
+    if profile.age is not None and profile.age > 50:
+        score += 1
+
+    if score <= 2:
+        return "low", 0.50
+    elif score <= 5:
+        return "medium", 0.42
+    else:
+        return "high", 0.35
 
 # --- konfiguracja ---
 MODEL_PATH = os.path.join("artifacts", "efficientnet_b0_best.pt")
@@ -55,7 +106,10 @@ def health():
     return {"status": "ok", "device": device, "threshold": THRESHOLD}
 
 @app.post("/predict")
-async def predict(file: UploadFile = File(...)):
+async def predict(
+    file: UploadFile = File(...),
+    risk_profile: str | None = Form(default=None),
+):
     if file.content_type not in ("image/jpeg", "image/png", "image/webp"):
         raise HTTPException(status_code=400, detail="Wgraj obraz JPG/PNG/WEBP.")
 
@@ -74,11 +128,23 @@ async def predict(file: UploadFile = File(...)):
         logit = model(x).squeeze(1)
         prob = torch.sigmoid(logit).item()
 
-    label: Literal["low_risk", "high_risk"] = "high_risk" if prob >= THRESHOLD else "low_risk"
+    clinical_risk_level: str | None = None
+    threshold = THRESHOLD
+
+    if risk_profile:
+        try:
+            profile_data = json.loads(risk_profile)
+            profile = RiskProfile(**profile_data)
+            clinical_risk_level, threshold = compute_clinical_risk(profile)
+        except Exception:
+            pass
+
+    label: Literal["low_risk", "high_risk"] = "high_risk" if prob >= threshold else "low_risk"
 
     return {
         "probability": prob,
-        "threshold": THRESHOLD,
+        "threshold": threshold,
+        "clinical_risk_level": clinical_risk_level,
         "label": label,
         "disclaimer": "This is not a medical diagnosis. Consult a dermatologist.",
     }
